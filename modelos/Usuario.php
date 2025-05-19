@@ -5,6 +5,13 @@ class Usuario
 {
   const NOMBRE_TABLA = "usuarios";
 
+  /**
+   * Registra un nuevo usuario
+   * 
+   * @param string $contrasena  Contraseña plana
+   *
+   * @return array  Arreghlo mensaje para vista
+   */
   public static function crear($nombre, $correo, $contrasena)
   {
     $claveApi = self::generarClaveApi();
@@ -30,51 +37,70 @@ class Usuario
     }
   }
 
+  /**
+   * Autentica a un usuario
+   *
+   * @param string $contrasena  Contraseña plana
+   *
+   * @return array  Arreghlo mensaje para vista
+   */
   public static function autenticar($correo, $contrasena)
   {
     $query = "SELECT idUsuario, nombre, correo, contrasena, claveApi FROM " . self::NOMBRE_TABLA . " WHERE correo = ?";
-    
-    try{
-       $pdo = ConexionBD::obtenerInstancia()->obtenerBD();
-            $query = $pdo->prepare($query);
-            $query->bindParam(1, $correo);
-            $query->execute();
-            //FETCH_ASSOC nos da arreglo asociativo [clave: valor]
-            $usuario = $query->fetch(PDO::FETCH_ASSOC);
 
-            if($usuario && password_verify($contrasena,$usuario['contrasena'])){
-              return [
-                    "estado" => 1,
-                    "mensaje" => "Autenticación exitosa",
-                    "usuario" => [
-                        "id" => $usuario["idUsuario"],
-                        "nombre" => $usuario["nombre"],
-                        "correo" => $usuario["correo"],
-                        "claveApi" => $usuario["claveApi"]
-                    ]
-                ];
-            }else{
-              throw new ExcepcionApi(3, "Credenciales incorrectas", 401);
-            }
-    }catch (PDOException $exception){
-      throw new ExcepcionApi(2, "Error en autenticación: " .$exception->getMessage(),400)
+    try {
+      $conexion = ConexionBD::obtenerInstancia()->obtenerBD();
+      $query = $conexion->prepare($query);
+      $query->bindParam(1, $correo);
+      $query->execute();
+      //FETCH_ASSOC nos da arreglo asociativo [clave: valor]
+      $usuario = $query->fetch(PDO::FETCH_ASSOC);
+
+      if ($usuario && password_verify($contrasena, $usuario['contrasena'])) {
+        return [
+          "estado" => 1,
+          "mensaje" => "Autenticación exitosa",
+          "usuario" => [
+            "id" => $usuario["idUsuario"],
+            "nombre" => $usuario["nombre"],
+            "correo" => $usuario["correo"],
+            "claveApi" => $usuario["claveApi"]
+          ]
+        ];
+      } else {
+        throw new ExcepcionApi(3, "Credenciales incorrectas", 401);
+      }
+    } catch (PDOException $exception) {
+      throw new ExcepcionApi(2, "Error en autenticación: " . $exception->getMessage(), 400);
     }
-  
+
   }
 
+  /**
+   * Valida una clave API y devuelve el ID del usuario 
+   *
+   * @param string $clave  Clave API enviada en encabezado Authorization
+   *
+   * @return int|null  ID del usuario si es válida, null si no existe
+   */
   public static function validarClaveApi($clave)
-    {
-        $sql = "SELECT idUsuario FROM " . self::NOMBRE_TABLA . " WHERE claveApi = ?";
+  {
+    $query = "SELECT idUsuario FROM " . self::NOMBRE_TABLA . " WHERE claveApi = ?";
 
-        $pdo = ConexionBD::obtenerInstancia()->obtenerBD();
-        $sentencia = $pdo->prepare($sql);
-        $sentencia->bindParam(1, $clave);
-        $sentencia->execute();
+    $conexion = ConexionBD::obtenerInstancia()->obtenerBD();
+    $query = $conexion->prepare($query);
+    $query->bindParam(1, $clave);
+    $query->execute();
 
-        $fila = $sentencia->fetch();
-        return $fila ? $fila['idUsuario'] : null;
-    }
+    $fila = $query->fetch();
+    return $fila ? $fila['idUsuario'] : null;
+  }
 
+  /**
+   * Genera clave API 
+   *
+   * @return string  Clave API 
+   */
   private static function generarClaveApi()
   {
     return bin2hex(random_bytes(20));
