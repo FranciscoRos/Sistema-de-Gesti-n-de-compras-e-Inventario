@@ -45,3 +45,59 @@ CREATE TABLE detalle_compra (
     precioUnitario DECIMAL(10,2) NOT NULL,
     subtotal DECIMAL(10,2) NOT NULL
 );
+
+
+
+-- productos.idUsuario
+ALTER TABLE productos DROP FOREIGN KEY productos_ibfk_1;
+ALTER TABLE productos
+ADD CONSTRAINT fk_productos_usuario
+FOREIGN KEY (idUsuario)
+REFERENCES usuarios(idUsuario)
+ON DELETE CASCADE
+ON UPDATE CASCADE;
+
+-- proveedores.idUsuario
+ALTER TABLE proveedores DROP FOREIGN KEY proveedores_ibfk_1;
+ALTER TABLE proveedores
+ADD CONSTRAINT fk_proveedores_usuario
+FOREIGN KEY (idUsuario)
+REFERENCES usuarios(idUsuario)
+ON DELETE CASCADE
+ON UPDATE CASCADE;
+
+-- compras.idUsuario
+ALTER TABLE compras DROP FOREIGN KEY compras_ibfk_1;
+ALTER TABLE compras
+ADD CONSTRAINT fk_compras_usuario
+FOREIGN KEY (idUsuario)
+REFERENCES usuarios(idUsuario)
+ON DELETE CASCADE
+ON UPDATE CASCADE;
+
+-- compras.idProveedor
+ALTER TABLE compras DROP FOREIGN KEY compras_ibfk_2;
+ALTER TABLE compras
+ADD CONSTRAINT fk_compras_proveedor
+FOREIGN KEY (idProveedor)
+REFERENCES proveedores(idProveedor)
+ON DELETE SET NULL
+ON UPDATE CASCADE;
+
+-- detalle_compra.idCompra
+ALTER TABLE detalle_compra DROP FOREIGN KEY detalle_compra_ibfk_1;
+ALTER TABLE detalle_compra
+ADD CONSTRAINT fk_detalle_compra_compra
+FOREIGN KEY (idCompra)
+REFERENCES compras(idCompra)
+ON DELETE CASCADE
+ON UPDATE CASCADE;
+
+-- detalle_compra.idProducto
+ALTER TABLE detalle_compra DROP FOREIGN KEY detalle_compra_ibfk_2;
+ALTER TABLE detalle_compra
+ADD CONSTRAINT fk_detalle_compra_producto
+FOREIGN KEY (idProducto)
+REFERENCES productos(idProducto)
+ON DELETE RESTRICT
+ON UPDATE CASCADE;
