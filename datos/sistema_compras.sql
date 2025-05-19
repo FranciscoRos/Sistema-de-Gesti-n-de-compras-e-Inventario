@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1
--- Tiempo de generación: 19-05-2025 a las 08:06:09
+-- Tiempo de generación: 19-05-2025 a las 08:58:52
 -- Versión del servidor: 10.4.32-MariaDB
 -- Versión de PHP: 8.0.30
 
@@ -109,7 +109,8 @@ INSERT INTO `productos` (`idProducto`, `idUsuario`, `nombre`, `precioCompra`, `p
 (9, 2, 'Marcador permanente', 6.00, 10.00, 80),
 (10, 2, 'Folder tamaño carta', 1.50, 3.00, 300),
 (11, 4, 'Galletas', 10.50, 15.00, 80),
-(12, 4, 'Sopas', 14.00, 200.00, 33);
+(12, 4, 'Sopas', 14.00, 200.00, 33),
+(13, 4, 'Maiz', 1.00, 80.00, 12);
 
 -- --------------------------------------------------------
 
@@ -135,7 +136,9 @@ INSERT INTO `proveedores` (`idProveedor`, `idUsuario`, `nombre`, `contacto`, `te
 (3, 1, 'Frutas y Verduras Rivas', 'Julia Rivas', '9985678123'),
 (4, 2, 'Papelería Central', 'Ana Tovar', '9993456712'),
 (5, 2, 'Súper Regalos S.A.', 'Miguel Sánchez', '9992314455'),
-(6, 2, 'Artículos de Oficina Peninsular', 'Laura Pérez', '9997788990');
+(6, 2, 'Artículos de Oficina Peninsular', 'Laura Pérez', '9997788990'),
+(8, 6, 'Proveedor del Norte', 'Luis Ramírez', '999999999'),
+(9, 6, 'Proveedor del Norte 2', 'Luis Ramírez', '999999999');
 
 -- --------------------------------------------------------
 
@@ -223,13 +226,13 @@ ALTER TABLE `detalle_compra`
 -- AUTO_INCREMENT de la tabla `productos`
 --
 ALTER TABLE `productos`
-  MODIFY `idProducto` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
+  MODIFY `idProducto` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=14;
 
 --
 -- AUTO_INCREMENT de la tabla `proveedores`
 --
 ALTER TABLE `proveedores`
-  MODIFY `idProveedor` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
+  MODIFY `idProveedor` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
 
 --
 -- AUTO_INCREMENT de la tabla `usuarios`

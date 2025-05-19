@@ -11,7 +11,7 @@ class usuarios
    *
    * @param array $peticion  Segmentos de la URL después de /usuarios/
    *
-   * @return array  Arreglo mensaje para vista
+   * 
    */
   public static function post($peticion)
   {
