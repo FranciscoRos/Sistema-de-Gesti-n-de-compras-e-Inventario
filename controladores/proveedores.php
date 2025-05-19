@@ -27,7 +27,7 @@ class proveedores
 
     return Proveedor::crear($idUsuario, $datos);
   }
-
+  
   
   public static function put($peticion)
   {
