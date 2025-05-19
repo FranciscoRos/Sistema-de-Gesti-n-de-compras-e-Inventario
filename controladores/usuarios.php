@@ -1,5 +1,5 @@
 <?php
-require_once "../modelos/Usuario.php";
+require_once __DIR__ ."/../modelos/Usuario.php";
 
 class usuarios
 {
@@ -17,6 +17,7 @@ class usuarios
   {
     if (!isset($peticion[0])) {
       throw new ExcepcionApi(2, "Falta accion a ejecutar: registro | login", 400);
+      
     }
 
     switch ($peticion[0]) {

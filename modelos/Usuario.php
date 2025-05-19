@@ -18,10 +18,10 @@ class Usuario
     $hash = password_hash($contrasena, PASSWORD_DEFAULT);
 
     try {
-      $conexion = ConexionBD::obtenerInstancia()->obtenerBD();
+      $_conexion = ConexionBD::obtenerInstancia()->obtenerBD();
       $query = "INSERT INTO " . self::NOMBRE_TABLA . " (nombre, correo, contrasena, claveApi) VALUES (?, ?, ?, ?)";
 
-      $query = $conexion->prepare($query);
+      $query = $_conexion->prepare($query);
       $query->bindParam(1, $nombre);
       $query->bindParam(2, $correo);
       $query->bindParam(3, $hash);
@@ -49,8 +49,8 @@ class Usuario
     $query = "SELECT idUsuario, nombre, correo, contrasena, claveApi FROM " . self::NOMBRE_TABLA . " WHERE correo = ?";
 
     try {
-      $conexion = ConexionBD::obtenerInstancia()->obtenerBD();
-      $query = $conexion->prepare($query);
+      $_conexion = ConexionBD::obtenerInstancia()->obtenerBD();
+      $query = $_conexion->prepare($query);
       $query->bindParam(1, $correo);
       $query->execute();
       //FETCH_ASSOC nos da arreglo asociativo [clave: valor]
@@ -87,8 +87,8 @@ class Usuario
   {
     $query = "SELECT idUsuario FROM " . self::NOMBRE_TABLA . " WHERE claveApi = ?";
 
-    $conexion = ConexionBD::obtenerInstancia()->obtenerBD();
-    $query = $conexion->prepare($query);
+    $_conexion = ConexionBD::obtenerInstancia()->obtenerBD();
+    $query = $_conexion->prepare($query);
     $query->bindParam(1, $clave);
     $query->execute();
 
