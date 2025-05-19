@@ -57,7 +57,7 @@ class Producto
       $query = "SELECT idProducto, idUsuario, nombre, precioCompra, precioVenta, stock FROM productos WHERE idUsuario = ?";
       $query = $_conexion->prepare($query);
       $query->bindParam(1, $idUsuario, PDO::PARAM_INT);
-      $query->execute();
+      $query->execute(); 
       $productos = $query->fetchAll(PDO::FETCH_ASSOC);
 
       return [
@@ -85,7 +85,7 @@ class Producto
       $query = "SELECT idProducto, idUsuario, nombre, precioCompra, precioVenta, stock FROM productos WHERE idUsuario = ? && idProducto =?";
       $query = $_conexion->prepare($query);
       $query->bindParam(1, $idUsuario, PDO::PARAM_INT);
-      $query->bindParam(12, $idProducto, PDO::PARAM_INT);
+      $query->bindParam(2, $idProducto, PDO::PARAM_INT);
       $query->execute();
       $productoInfo = $query->fetch(PDO::FETCH_ASSOC);
 
@@ -117,12 +117,12 @@ public static function actualizar($idUsuario, $idProducto, $datos)
     }
 
     try {
-        $conexion = ConexionBD::obtenerInstancia()->obtenerBD();
+        $_conexion = ConexionBD::obtenerInstancia()->obtenerBD();
 
         $sql = "UPDATE productos SET nombre = ?, precioCompra = ?, precioVenta = ?, stock = ?
                 WHERE idProducto = ? AND idUsuario = ?";
 
-        $sentencia = $conexion->prepare($sql);
+        $sentencia = $_conexion->prepare($sql);
         $sentencia->bindParam(1, $datos['nombre']);
         $sentencia->bindParam(2, $datos['precioCompra']);
         $sentencia->bindParam(3, $datos['precioVenta']);
@@ -158,10 +158,10 @@ public static function actualizar($idUsuario, $idProducto, $datos)
 public static function eliminar($idUsuario, $idProducto)
 {
     try {
-        $conexion = ConexionBD::obtenerInstancia()->obtenerBD();
+        $_conexion = ConexionBD::obtenerInstancia()->obtenerBD();
 
         $sql = "DELETE FROM productos WHERE idProducto = ? AND idUsuario = ?";
-        $sentencia = $conexion->prepare($sql);
+        $sentencia = $_conexion->prepare($sql);
         $sentencia->bindParam(1, $idProducto, PDO::PARAM_INT);
         $sentencia->bindParam(2, $idUsuario, PDO::PARAM_INT);
         $sentencia->execute();

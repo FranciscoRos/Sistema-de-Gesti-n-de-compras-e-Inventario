@@ -1,5 +1,5 @@
 <?php
-require_once __DIR__ ."/../modelos/Usuario.php";
+require_once __DIR__ . "/../modelos/Usuario.php";
 
 class usuarios
 {
@@ -17,7 +17,7 @@ class usuarios
   {
     if (!isset($peticion[0])) {
       throw new ExcepcionApi(2, "Falta accion a ejecutar: registro | login", 400);
-      
+
     }
 
     switch ($peticion[0]) {
@@ -77,13 +77,21 @@ class usuarios
    */
   public static function autorizar()
   {
-    $cabeceras = apache_request_headers();
+    $cabeceras = function_exists('apache_request_headers') ? apache_request_headers() : [];
+    $clave = $cabeceras["Authorization"] ?? null;
 
-    if (!isset($cabeceras["Authorization"])) {
+    if (!$clave && isset($_SERVER['HTTP_AUTHORIZATION'])) {
+      $clave = $_SERVER['HTTP_AUTHORIZATION'];
+    }
+
+    // DEBUG TEMPORAL NO QUITAR
+    //var_dump("Clave recibida: ", $clave);
+    //exit;
+
+    if (!$clave) {
       throw new ExcepcionApi(5, "Falta clave API", 403);
     }
 
-    $clave = $cabeceras["Authorization"];
     $id = Usuario::validarClaveApi($clave);
 
     if (!$id) {
@@ -92,5 +100,7 @@ class usuarios
 
     return $id;
   }
+
+
 }
 ?>
