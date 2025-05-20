@@ -2,6 +2,7 @@
 require_once __DIR__ . '/../modelos/Producto.php';
 require_once __DIR__ . '/../controladores/usuarios.php';
 
+
 class productos
 {
   /**
@@ -31,6 +32,11 @@ class productos
 
     if (!isset($peticion[0]) || trim($peticion[0]) === "") {
       return Producto::obtenerTodos($idUsuario);
+
+    } elseif ($peticion[0] === "filtrarBajoStock" && isset($peticion[1])) {
+      $cant = $peticion[1];
+      return Producto::filtrarBajoStock($cant);
+      
     } else {
       $idProducto = $peticion[0];
       return Producto::obtenerPorId($idUsuario, $idProducto);
