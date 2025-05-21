@@ -88,6 +88,10 @@ class Producto
       $query->bindParam(2, $idProducto, PDO::PARAM_INT);
       $query->execute();
       $productoInfo = $query->fetch(PDO::FETCH_ASSOC);
+      
+      if (!$productoInfo) {
+        throw new ExcepcionApi(5, "El producto no existe o no pertenece al usuario", 404);
+      }
 
       return [
         "estado" => 1,

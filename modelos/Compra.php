@@ -17,7 +17,7 @@ class Compra
    */
   public static function crear($idUsuario, $datos)
   {
-    if (!isset($datos['idProveedor'], $datos['productos']) || !is_array($datos['productos']) || count($datos['productos']) === 0) {
+    if (!isset($datos['idProveedor']) || count($datos['productos']) === 0) {
       throw new ExcepcionApi(4, "Datos incompletos para registrar compra", 422);
     }
 
@@ -84,5 +84,68 @@ class Compra
     }
   }
 
-  // pendientes obtenerTodos, obtenerPorId
+  /**
+   * Obtiene todas las compras hechas por un usuario
+   * 
+   * @param int $idUsuario ID del usuario autenticado
+   * @return array Arreglo de compras pertenecientes al usuario
+  */
+
+  public static function obtenerTodos($idUsuario) {
+    try {
+      $_conexion = ConexionBD::obtenerInstancia()->obtenerBD();
+      $query = "SELECT idCompra, idUsuario, idProveedor, fecha, total FROM ". self::TABLA_COMPRA . " WHERE idUsuario = ?"; 
+      $query = $_conexion->prepare($query);
+      $query->bindParam(1, $idUsuario, PDO::PARAM_INT);
+      $query->execute();
+      $compras = $query->fetchAll(PDO::FETCH_ASSOC);
+
+      return [
+        "estado" => 1,
+        "mensaje" => "Compras recuperados correctamente",
+        "datos" => $compras
+
+      ];
+    } catch (PDOException $e) {
+      throw new ExcepcionApi(7, "Error al consultar compras: " . $e->getMessage(), 500);
+    }
+  }
+  /**
+   * Obtiene una compra específica del usuario
+   *
+   * @param int $idUsuario ID del usuario autenticado
+   * @param int $idCompra  ID de la compra
+   * @return array Detalles de la compra
+   */
+  public static function obtenerPorId($idUsuario, $idCompra) {
+    try {
+      $_conexion = ConexionBD::obtenerInstancia()->obtenerBD();
+
+      $sql = "SELECT idCompra, idUsuario, idProveedor, fecha, total FROM " . self::TABLA_COMPRA . " WHERE idCompra = ?";
+      
+      $query = $_conexion->prepare($sql);
+      $query->bindParam(1, $idCompra, PDO::PARAM_INT);
+      $query->execute();
+      $infoCompra = $query->fetch(PDO::FETCH_ASSOC);
+
+      if (!$infoCompra) {
+        throw new ExcepcionApi(8, "La compra no existe", 404);
+      }
+
+      // Verifica que el usuario autenticado sea el dueño
+      if ($infoCompra["idUsuario"] !== $idUsuario) {
+        throw new ExcepcionApi(9, "No tienes permisos para ver esta compra", 403);
+      }
+
+      return [
+        "estado" => 1,
+        "mensaje" => "Información de la compra recuperada correctamente",
+        "datos" => $infoCompra
+      ];
+
+    } catch (PDOException $e) {
+      throw new ExcepcionApi(7, "Error al consultar compra: " . $e->getMessage(), 500);
+    }
+  }
+
 }
