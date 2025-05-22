@@ -4,11 +4,22 @@
 require_once __DIR__ .'/controladores/usuarios.php';
 require_once __DIR__ .'/controladores/productos.php';
 require_once __DIR__ . '/controladores/proveedores.php';
-require_once __DIR__ . '/controladores/compras.php';
 
 // Cargar vistas
 require_once __DIR__ .'/vistas/VistaJson.php';
 require_once __DIR__ .'/utilidades/ExcepcionApi.php';
+
+// Encabezados CORS
+if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+    header("Access-Control-Allow-Origin: *");
+    header("Access-Control-Allow-Headers: Authorization, Content-Type");
+    header("Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS");
+    exit(0);
+}
+
+header("Access-Control-Allow-Origin: *");
+header("Access-Control-Allow-Headers: Authorization, Content-Type");
+header("Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS");
 
 // Definir códigos internos
 // Códigos internos de error según convención oficial
@@ -43,7 +54,7 @@ $peticion = explode('/', $_GET['PATH_INFO']);
 $recurso = array_shift($peticion);
 
 // Lista de recursos disponibles
-$recursosPermitidos = ['usuarios','productos','proveedores', 'compras'];
+$recursosPermitidos = ['usuarios', 'productos', 'proveedores', 'compras'];
 
 // Validar recurso
 if (!in_array($recurso, $recursosPermitidos)) {
