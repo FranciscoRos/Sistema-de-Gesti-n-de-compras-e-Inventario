@@ -147,5 +147,26 @@ class Compra
       throw new ExcepcionApi(7, "Error al consultar compra: " . $e->getMessage(), 500);
     }
   }
+  
+  // Consultas de todas las compras realizadas
+  public static function obtenerComprasPorUsuario($idUsuario)
+    {
+        try {
+            $conexion = ConexionBD::obtenerInstancia()->obtenerBD();
+
+            $sql = "SELECT c.idCompra, c.fecha, c.total, 
+                           IFNULL(p.nombre, 'Proveedor eliminado') AS proveedor
+                    FROM compras c
+                    LEFT JOIN proveedores p ON c.idProveedor = p.idProveedor
+                    WHERE c.idUsuario = ?
+                    ORDER BY c.fecha DESC";
+
+            $stmt = $conexion->prepare($sql);
+            $stmt->execute([$idUsuario]);
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        } catch (PDOException $e) {
+            throw new ExcepcionApi(7, "Error al consultar compras: " . $e->getMessage(), 500);
+        }
+    }
 
 }
