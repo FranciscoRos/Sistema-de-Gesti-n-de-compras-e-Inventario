@@ -76,30 +76,28 @@ class usuarios
    * @throws ExcepcionApi Si la clave falta o no es válida
    */
   public static function autorizar()
-  {
-    $cabeceras = function_exists('apache_request_headers') ? apache_request_headers() : [];
-    $clave = $cabeceras["Authorization"] ?? null;
+{
+  // Obtener headers sin importar mayúsculas
+  $cabeceras = array_change_key_case(getallheaders(), CASE_LOWER);
+  $clave = $cabeceras["authorization"] ?? null;
 
-    if (!$clave && isset($_SERVER['HTTP_AUTHORIZATION'])) {
-      $clave = $_SERVER['HTTP_AUTHORIZATION'];
-    }
-
-    // DEBUG TEMPORAL NO QUITAR
-    //var_dump("Clave recibida: ", $clave);
-    //exit;
-
-    if (!$clave) {
-      throw new ExcepcionApi(5, "Falta clave API", 403);
-    }
-
-    $id = Usuario::validarClaveApi($clave);
-
-    if (!$id) {
-      throw new ExcepcionApi(6, "Clave API inválida", 403);
-    }
-
-    return $id;
+  // Fallback: algunos servidores la ponen en $_SERVER
+  if (!$clave && isset($_SERVER['HTTP_AUTHORIZATION'])) {
+    $clave = $_SERVER['HTTP_AUTHORIZATION'];
   }
+
+  if (!$clave) {
+    throw new ExcepcionApi(5, "Falta clave API", 403);
+  }
+
+  $id = Usuario::validarClaveApi($clave);
+
+  if (!$id) {
+    throw new ExcepcionApi(6, "Clave API inválida", 403);
+  }
+
+  return $id;
+}
 
 
 }
