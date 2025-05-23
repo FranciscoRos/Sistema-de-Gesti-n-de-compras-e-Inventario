@@ -4,6 +4,8 @@
 require_once __DIR__ .'/controladores/usuarios.php';
 require_once __DIR__ .'/controladores/productos.php';
 require_once __DIR__ . '/controladores/proveedores.php';
+require_once __DIR__ .'/controladores/compras.php';
+require_once __DIR__ .'/controladores/detalleCompras.php';
 
 // Cargar vistas
 require_once __DIR__ .'/vistas/VistaJson.php';
@@ -54,7 +56,7 @@ $peticion = explode('/', $_GET['PATH_INFO']);
 $recurso = array_shift($peticion);
 
 // Lista de recursos disponibles
-$recursosPermitidos = ['usuarios', 'productos', 'proveedores', 'compras'];
+$recursosPermitidos = ['usuarios', 'productos', 'proveedores', 'compras', 'detalleCompras'];
 
 // Validar recurso
 if (!in_array($recurso, $recursosPermitidos)) {
