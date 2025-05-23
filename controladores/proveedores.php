@@ -1,6 +1,6 @@
 <?php
-require_once __DIR__ . '/../modelos/Proveedor.php';
-require_once __DIR__ . '/../controladores/usuarios.php';
+require_once __DIR__ . '../modelos/Proveedor.php';
+require_once __DIR__ . '../controladores/usuarios.php';
 
 class proveedores
 {
