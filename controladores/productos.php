@@ -1,6 +1,6 @@
 <?php
-require_once __DIR__ . '/../modelos/Producto.php';
-require_once __DIR__ . '/../controladores/usuarios.php';
+require_once __DIR__ . '../modelos/Producto.php';
+require_once __DIR__ . '../controladores/usuarios.php';
 
 
 class productos

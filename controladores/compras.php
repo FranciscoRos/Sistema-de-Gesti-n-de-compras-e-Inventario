@@ -1,6 +1,6 @@
 <?php
-require_once __DIR__ . '/../modelos/Compra.php';
-require_once __DIR__ . '/../controladores/usuarios.php';
+require_once __DIR__ . '../modelos/Compra.php';
+require_once __DIR__ . '../controladores/usuarios.php';
 
 class compras {
       /**
@@ -34,19 +34,22 @@ class compras {
           $body = json_decode(file_get_contents('php://input'), true);
         return Compra::crear($idUsuario, $body);
     }
-//Consulta para todas las compras para usuario autorizado
-    public static function get($peticion)
-    {
-        Auth::verificarAutenticacion();
-        $idUsuario = Auth::obtenerIdUsuario();
 
-        $compras = Compra::obtenerComprasPorUsuario($idUsuario);
+// ????
 
-        return [
-            "estado" => "ok",
-            "compras" => $compras
-        ];
-    }
+// //Consulta para todas las compras para usuario autorizado
+//     public static function get($peticion)
+//     {
+//         Auth::verificarAutenticacion();
+//         $idUsuario = Auth::obtenerIdUsuario();
+
+//         $compras = Compra::obtenerComprasPorUsuario($idUsuario);
+
+//         return [
+//             "estado" => "ok",
+//             "compras" => $compras
+//         ];
+//     }
 }
 
-}
+
