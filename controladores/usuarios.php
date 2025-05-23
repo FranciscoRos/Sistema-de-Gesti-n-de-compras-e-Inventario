@@ -99,15 +99,16 @@ class usuarios
   return $id;
 }
 //Metodo get para regresar un usuario
-
-public static function obtenerUsuario($idUsuario)
+public static function get($peticion)
     {
-        $conexion = ConexionBD::obtenerInstancia()->obtenerBD();
-        $sql = "SELECT idUsuario, nombre, correo FROM usuarios WHERE idUsuario = ?";
-        $stmt = $conexion->prepare($sql);
-        $stmt->execute([$idUsuario]);
-        return $stmt->fetch(PDO::FETCH_ASSOC);
-    }
+      $idUsuario = usuarios::autorizar();
+      
+      if (!isset($peticion[0]) || trim($peticion[0]) === "") {
 
+      } else {
+        $idUsuario = $peticion[0];
+        return Usuario::obtenerUsuario($idUsuario);
+      }
+    }
 }
 ?>
