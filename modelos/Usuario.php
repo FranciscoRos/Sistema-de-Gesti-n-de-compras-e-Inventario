@@ -105,4 +105,13 @@ class Usuario
   {
     return bin2hex(random_bytes(20));
   }
+  //Metodo get para regresar un usuario
+  public static function obtenerUsuario($idUsuario)
+    {
+        $conexion = ConexionBD::obtenerInstancia()->obtenerBD();
+        $sql = "SELECT idUsuario, nombre, correo FROM usuarios WHERE idUsuario = ?";
+        $stmt = $conexion->prepare($sql);
+        $stmt->execute([$idUsuario]);
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
 }
