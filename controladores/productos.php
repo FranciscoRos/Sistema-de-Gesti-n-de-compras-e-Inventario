@@ -81,4 +81,25 @@ class productos
 
     return Producto::eliminar($idUsuario, $idProducto);
   }
+  //Filtrar producto por id de prooveedor
+  public static function filtrarPorProveedor($idProveedor) {
+    try {
+      $_conexion = ConexionBD::obtenerInstancia()->obtenerBD();
+
+      $sql = "SELECT idProducto, idUsuario, nombre, precioCompra, precioVenta, stock FROM productos WHERE idProveedor = ?";
+      $sentencia = $_conexion->prepare($sql);
+      $sentencia->bindParam(1, $idProveedor, PDO::PARAM_INT);
+      $sentencia->execute();
+      $datos = $sentencia->fetchAll(PDO::FETCH_ASSOC);
+      
+      return [
+          "estado" => 1,
+          "mensaje" => "Productos encontrados correctamente",
+          "datos" => $datos
+        ];
+
+    } catch (PDOException $e){
+      throw new ExcepcionApi(7, "Rango inválido: ". $e->getMessage(), 500);
+    }
+  }
 }

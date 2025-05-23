@@ -98,7 +98,17 @@ class usuarios
 
   return $id;
 }
+//Metodo get para regresar un usuario
+public static function get($peticion)
+    {
+      $idUsuario = usuarios::autorizar();
+      
+      if (!isset($peticion[0]) || trim($peticion[0]) === "") {
 
-
+      } else {
+        $idUsuario = $peticion[0];
+        return Usuario::obtenerUsuario($idUsuario);
+      }
+    }
 }
 ?>
