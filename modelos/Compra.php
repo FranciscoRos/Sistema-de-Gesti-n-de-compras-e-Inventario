@@ -61,6 +61,14 @@ class Compra
         $stmtStock->bindParam(2, $detalle['idProducto'], PDO::PARAM_INT);
         $stmtStock->bindParam(3, $idUsuario, PDO::PARAM_INT);
         $stmtStock->execute();
+        // Después de actualizar stock, también actualizamos el precioCompra del producto
+        $sqlPrecio = "UPDATE productos SET precioCompra = ? WHERE idProducto = ? AND idUsuario = ?";
+        $stmtPrecio = $_conexion->prepare($sqlPrecio);
+        $stmtPrecio->bindParam(1, $detalle['precioUnitario']);
+        $stmtPrecio->bindParam(2, $detalle['idProducto'], PDO::PARAM_INT);
+        $stmtPrecio->bindParam(3, $idUsuario, PDO::PARAM_INT);
+        $stmtPrecio->execute();
+
       }
 
       //  Actualizar total de la compra
@@ -89,12 +97,13 @@ class Compra
    * 
    * @param int $idUsuario ID del usuario autenticado
    * @return array Arreglo de compras pertenecientes al usuario
-  */
+   */
 
-  public static function obtenerTodos($idUsuario) {
+  public static function obtenerTodos($idUsuario)
+  {
     try {
       $_conexion = ConexionBD::obtenerInstancia()->obtenerBD();
-      $query = "SELECT idCompra, idUsuario, idProveedor, fecha, total FROM ". self::TABLA_COMPRA . " WHERE idUsuario = ?"; 
+      $query = "SELECT idCompra, idUsuario, idProveedor, fecha, total FROM " . self::TABLA_COMPRA . " WHERE idUsuario = ?";
       $query = $_conexion->prepare($query);
       $query->bindParam(1, $idUsuario, PDO::PARAM_INT);
       $query->execute();
@@ -117,12 +126,13 @@ class Compra
    * @param int $idCompra  ID de la compra
    * @return array Detalles de la compra
    */
-  public static function obtenerPorId($idUsuario, $idCompra) {
+  public static function obtenerPorId($idUsuario, $idCompra)
+  {
     try {
       $_conexion = ConexionBD::obtenerInstancia()->obtenerBD();
 
       $sql = "SELECT idCompra, idUsuario, idProveedor, fecha, total FROM " . self::TABLA_COMPRA . " WHERE idCompra = ?";
-      
+
       $query = $_conexion->prepare($sql);
       $query->bindParam(1, $idCompra, PDO::PARAM_INT);
       $query->execute();
@@ -147,26 +157,26 @@ class Compra
       throw new ExcepcionApi(7, "Error al consultar compra: " . $e->getMessage(), 500);
     }
   }
-  
+
   // Consultas de todas las compras realizadas
   public static function obtenerComprasPorUsuario($idUsuario)
-    {
-        try {
-            $conexion = ConexionBD::obtenerInstancia()->obtenerBD();
+  {
+    try {
+      $conexion = ConexionBD::obtenerInstancia()->obtenerBD();
 
-            $sql = "SELECT c.idCompra, c.fecha, c.total, 
+      $sql = "SELECT c.idCompra, c.fecha, c.total, 
                            IFNULL(p.nombre, 'Proveedor eliminado') AS proveedor
                     FROM compras c
                     LEFT JOIN proveedores p ON c.idProveedor = p.idProveedor
                     WHERE c.idUsuario = ?
                     ORDER BY c.fecha DESC";
 
-            $stmt = $conexion->prepare($sql);
-            $stmt->execute([$idUsuario]);
-            return $stmt->fetchAll(PDO::FETCH_ASSOC);
-        } catch (PDOException $e) {
-            throw new ExcepcionApi(7, "Error al consultar compras: " . $e->getMessage(), 500);
-        }
+      $stmt = $conexion->prepare($sql);
+      $stmt->execute([$idUsuario]);
+      return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    } catch (PDOException $e) {
+      throw new ExcepcionApi(7, "Error al consultar compras: " . $e->getMessage(), 500);
     }
+  }
 
 }
