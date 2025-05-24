@@ -21,24 +21,14 @@ class Reportes {
             $pdf->Ln(10);
             $pdf->SetFont('Arial','',12);
 
+            $nombreUsuario = count($detalles) > 0 ? $detalles[0]['nombreUsuario'] : '';
             //Recorrer los detalles de la compra 
-            foreach ($detalles as $detalle) {
-                $pdf->Cell(40, 10, 'Usuario: ' . $detalle['nombreUsuario']);
-                $pdf->Ln(10);
-                $pdf->Cell(40, 10, 'Fecha: ' . $detalle['fecha']);
-                $pdf->Ln(10);
-                $pdf->Cell(40, 10, 'Producto: ' . $detalle['producto']);
-                $pdf->Ln(10);
-                $pdf->Cell(40, 10, 'Cantidad: ' . $detalle['cantidad']);
-                $pdf->Ln(10);
-                $pdf->Cell(40, 10, 'Precio Unitario: ' . $detalle['precioUnitario']);
-                $pdf->Ln(10);
-                $pdf->Cell(40, 10, 'Subtotal: ' . $detalle['subtotal']);
-                $pdf->Ln(20);
-            }
-        header('Content-Type: application/pdf');
-        $pdf ->Output('I', 'reporte.pdf');
-        exit;
+            $pdf->Cell(40, 10, 'Nombre del cliente: ' . $nombreUsuario);
+            $pdf->Ln(10);
+            self::addRows($pdf, $detalles, ['idCompra', 'producto', 'cantidad', 'precioUnitario', 'subtotal'], 43, 10);
+            header('Content-Type: application/pdf');
+            $pdf ->Output('I', 'reporte.pdf');
+            exit;
 
         }
         else if (isset($peticion[0]) && trim($peticion[0]) === "stock") {
@@ -54,16 +44,7 @@ class Reportes {
             $pdf->SetFont('Arial','',12);
 
             //Recorrer el stock
-            foreach ($productos as $producto) {
-                $pdf->Cell(40, 10, 'Nombre del producto: ' . $producto['nombre']);
-                $pdf->Ln(10);
-                $pdf->Cell(40, 10, 'Precio de compra: ' . $producto['precioCompra']);
-                $pdf->Ln(10);
-                $pdf->Cell(40, 10, 'Precio de venta: ' . $producto['precioVenta']);
-                $pdf->Ln(10);
-                $pdf->Cell(40, 10, 'Stock: ' . $producto['stock']);
-                $pdf->Ln(20);
-            }
+            self::addRows($pdf, $productos, ['nombre', 'precioCompra', 'precioVenta', 'stock'], 50, 10);
             header('Content-Type: application/pdf');
             $pdf ->Output('I', 'reporte.pdf');
             exit;
@@ -79,15 +60,7 @@ class Reportes {
             $pdf->Ln(10);
             $pdf->SetFont('Arial','',12);
 
-            //Recorrer los proveedores
-            foreach ($proveedores as $proveedor) {
-                $pdf->Cell(40, 10, 'Nombre: ' . $proveedor['nombre']);
-                $pdf->Ln(10);
-                $pdf->Cell(40, 10, 'Contacto: ' . $proveedor['contacto']);
-                $pdf->Ln(10);
-                $pdf->Cell(40, 10, 'Telefono: ' . $proveedor['telefono']);
-                $pdf->Ln(20);
-            }
+            self::addRows($pdf, $proveedores, ['nombre', 'contacto', 'telefono'], 70, 10);
             header('Content-Type: application/pdf');
             $pdf ->Output('I', 'reporte.pdf');
             exit;
@@ -98,21 +71,10 @@ class Reportes {
             $pdf = new FPDF();
             $pdf->AddPage();
             $pdf->SetFont('Arial', 'B', 16);
-            $pdf->Cell(40, 10, 'Listado de Productos Generales');
+            $pdf->Cell(40, 10, 'inventario general');
             $pdf->Ln(10);
             $pdf->SetFont('Arial','',12);
-
-            //Recorrer los productos
-            foreach ($productos as $producto) {
-                $pdf->Cell(40, 10, 'ID: ' . $producto['idProducto']);
-                $pdf->Ln(10);
-                $pdf->Cell(40, 10, 'Nombre: ' . $producto['nombre']);
-                $pdf->Ln(10);
-                $pdf->Cell(40, 10, 'Precio de compra: ' . $producto['precioCompra']);
-                $pdf->Ln(10);
-                $pdf->Cell(40, 10, 'Precio de venta: ' . $producto['precioVenta']);
-                $pdf->Ln(20);
-            }
+            self::addRows($pdf, $productos, ['idProducto','nombre', 'precioCompra', 'precioVenta', 'stock'], 45, 10);
             header('Content-Type: application/pdf');
             $pdf ->Output('I', 'reporte.pdf');
             exit;
@@ -129,21 +91,27 @@ class Reportes {
             $pdf->SetFont('Arial','',12);
 
             //Recorrer los productos
-            foreach ($productos as $producto) {
-                $pdf->Cell(40, 10, 'ID: ' . $producto['idProducto']);
-                $pdf->Ln(10);
-                $pdf->Cell(40, 10, 'Nombre: ' . $producto['nombre']);
-                $pdf->Ln(10);
-                $pdf->Cell(40, 10, 'Precio de compra: ' . $producto['precioCompra']);
-                $pdf->Ln(10);
-                $pdf->Cell(40, 10, 'Precio de venta: ' . $producto['precioVenta']);
-                $pdf->Ln(20);
-            }
+             self::addRows($pdf, $productos, ['idProducto','nombre', 'precioCompra', 'precioVenta', 'stock'], 45, 10);
             header('Content-Type: application/pdf');
             $pdf ->Output('I', 'reporte.pdf');
             exit;
         } else {
             throw new ExcepcionApi(4, "Petición no válida", 400);
+        }
+    }
+    private static function addRows($pdf, $datos, $campos, $ancho, $alto) {
+        // Mostrar encabezados
+        foreach ($campos as $campo) {
+            $pdf->Cell($ancho, $alto, ucfirst($campo));
+        }
+        $pdf->Ln(10);
+    
+        // Mostrar los datos
+        foreach ($datos as $fila) {
+            foreach ($campos as $campo) {
+                $pdf->Cell($ancho, $alto, $fila[$campo]);
+            }
+            $pdf->Ln(10);
         }
     }
 }

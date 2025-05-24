@@ -1,5 +1,9 @@
 <?php
 require_once __DIR__ . '/../datos/ConexionBD.php';
+require_once __DIR__ . '/../librerias/vendor/autoload.php';
+use PHPMailer\PHPMailer\PHPMailer;
+use PHPMailer\PHPMailer\SMTP;
+use PHPMailer\PHPMailer\Exception;
 
 class Producto
 {
@@ -32,6 +36,41 @@ class Producto
       $query->bindParam(4, $datos['precioVenta']);
       $query->bindParam(5, $datos['stock'], PDO::PARAM_INT);
       $query->execute();
+
+      $idProducto = $_conexion->lastInsertId();
+
+      // Enviar correo de aviso
+      try {
+        $mail = new PHPMailer(true);
+        // Configuración básica (ajusta según tus credenciales)
+        $mail->isSMTP();
+        $mail->Host       = 'smtp.gmail.com';
+        $mail->SMTPAuth   = true;
+        $mail->Username   = 'falsofrancisco804@gmail.com';
+        $mail->Password   = 'uplsgkhtgboubegh';
+        $mail->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS;
+        $mail->Port       = 465;
+        $mail->setFrom('falsofrancisco804@gmail.com', 'Administrador');
+        $mail->addAddress('example@gmail.com', 'Usuario Destino'); // Cambia por el destinatario real
+        $mail->isHTML(true);
+        $mail->Subject = 'Nuevo producto creado';
+        $mail->Body    = '<b>Se ha creado un nuevo producto:</b><br>' .
+          'Nombre: ' . htmlspecialchars($datos['nombre']) . '<br>' .
+          'Precio de compra: ' . htmlspecialchars($datos['precioCompra']) . '<br>' .
+          'Precio de venta: ' . htmlspecialchars($datos['precioVenta']) . '<br>' .
+          'Stock: ' . htmlspecialchars($datos['stock']) . '<br>' .
+          'ID: ' . $idProducto;
+        $mail->AltBody = 'Se ha creado un nuevo producto: ' .
+          'Nombre: ' . $datos['nombre'] . ', ' .
+          'Precio de compra: ' . $datos['precioCompra'] . ', ' .
+          'Precio de venta: ' . $datos['precioVenta'] . ', ' .
+          'Stock: ' . $datos['stock'] . ', ' .
+          'ID: ' . $idProducto;
+        $mail->send();
+      } catch (Exception $e) {
+        // Manejo de errores al enviar el correo
+        throw new ExcepcionApi(8, "Error al enviar el correo: " . $mail->ErrorInfo, 500);
+      } 
 
       return [
         "estado" => 1,
