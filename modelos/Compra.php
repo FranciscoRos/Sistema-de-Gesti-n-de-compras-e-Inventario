@@ -1,5 +1,10 @@
 <?php
 require_once __DIR__ . '/../datos/ConexionBD.php';
+require_once __DIR__ . '/../modelos/detalleCompra.php';
+require_once __DIR__ . '/../librerias/vendor/autoload.php';
+use PHPMailer\PHPMailer\PHPMailer;
+use PHPMailer\PHPMailer\SMTP;
+use PHPMailer\PHPMailer\Exception;
 
 class Compra
 {
@@ -35,15 +40,15 @@ class Compra
       $idCompra = $_conexion->lastInsertId();
 
       $total = 0;
-
+      $productosResumen = '';
       // Insertar productos en detalle_compra y acumular total
       foreach ($datos['productos'] as $detalle) {
         if (!isset($detalle['idProducto'], $detalle['cantidad'], $detalle['precioUnitario'])) {
           throw new ExcepcionApi(4, "Faltan campos en uno de los productos", 422);
         }
 
-        $subtotal = $detalle['cantidad'] * $detalle['precioUnitario'];
-        $total += $subtotal;
+        $subtotal = $detalle['cantidad'] * $detalle['precioUnitario']; //2 vasos * 20.00 = 40 , 3 manzabas * 10.00 = 300
+        $total += $subtotal; //340.00
 
         // Insertar detalle
         $sqlDetalle = "INSERT INTO " . self::TABLA_DETALLE . " (idCompra, idProducto, cantidad, precioUnitario) VALUES (?, ?, ?, ?)";
@@ -53,6 +58,13 @@ class Compra
         $insercionDetalle->bindParam(3, $detalle['cantidad'], PDO::PARAM_INT);
         $insercionDetalle->bindParam(4, $detalle['precioUnitario']);
         $insercionDetalle->execute();
+
+        // Acumular información de productos para el correo
+        $productosResumen .=
+          'Producto: ' . htmlspecialchars($detalle['idProducto']) . '<br>' .
+          'Cantidad: ' . htmlspecialchars($detalle['cantidad']) . '<br>' .
+          'Precio unitario: ' . htmlspecialchars($detalle['precioUnitario']) . '<br>' .
+          'Subtotal: ' . htmlspecialchars($subtotal) . '<br><br>';
 
         // Actualizar stock del producto
         $sqlStock = "UPDATE productos SET stock = stock + ? WHERE idProducto = ? AND idUsuario = ?";
@@ -68,7 +80,37 @@ class Compra
         $stmtPrecio->bindParam(2, $detalle['idProducto'], PDO::PARAM_INT);
         $stmtPrecio->bindParam(3, $idUsuario, PDO::PARAM_INT);
         $stmtPrecio->execute();
+      }
 
+      // Enviar correo de ticket de compra con el resumen de todos los productos
+      try {
+        $userData = self::correoUsuario($idUsuario);
+        $emailUser = $userData['datos']['correo'];
+        $userName = $userData['datos']['nombreUsuario'];
+
+        $mail = new \PHPMailer\PHPMailer\PHPMailer(true);
+        $mail->isSMTP();
+        $mail->Host       = 'smtp.gmail.com';
+        $mail->SMTPAuth   = true;
+        $mail->Username   = 'falsofrancisco804@gmail.com';
+        $mail->Password   = 'uplsgkhtgboubegh';
+        $mail->SMTPSecure = \PHPMailer\PHPMailer\PHPMailer::ENCRYPTION_SMTPS;
+        $mail->Port       = 465;
+        $mail->setFrom('falsofrancisco804@gmail.com', 'Administrador');
+        $mail->addAddress($emailUser, $userName);
+        $mail->isHTML(true);
+        $mail->Subject = '¡Ticket de compra generado!';
+        $mail->Body    =
+          '<b>Hola ' . htmlspecialchars($userName) . '</b><br>' .
+          '<b>Se ha creado su ticket de compra: </b><br>' .
+          $productosResumen .
+          'ID de compra: ' . $idCompra . '<br>' .
+          'Total: ' . $total . '<br>' .
+          'Gracias por confiar en nosotros. Tenga un buen día';
+        $mail->AltBody = 'Usted ha realizado una compra. ID de compra: ' . $idCompra . ', Total: ' . $total;
+        $mail->send();
+      } catch (\Exception $e) {
+        // Puedes registrar el error si lo deseas, pero no interrumpas la compra
       }
 
       //  Actualizar total de la compra
@@ -179,4 +221,30 @@ class Compra
     }
   }
 
+  public static function correoUsuario($idUsuario) {
+    try {
+        $_conexion = ConexionBD::obtenerInstancia()->obtenerBD();
+
+        $sql = "SELECT u.correo,
+        u.nombre AS nombreUsuario,
+        p.nombre AS nombreProducto,
+        p.precioCompra,
+        p.precioVenta,
+        p.stock
+        FROM usuarios u JOIN productos p ON u.idusuario = p.idUsuario
+        WHERE u.idUsuario = ?";
+        $sentencia = $_conexion->prepare($sql);
+        $sentencia->bindParam(1, $idUsuario, PDO::PARAM_INT);
+        $sentencia->execute();
+        $datos = $sentencia->fetch(PDO::FETCH_ASSOC);
+
+        return [
+          "estado" => 1,
+          "mensaje" => "Datos encontrados correctamente",
+          "datos" => $datos
+        ];
+    } catch (PDOException $e) {
+      throw new ExcepcionApi(7, "Error al encontrar el correo del usuario: " . $e->getMessage(), 500);
+    }
+  }
 }

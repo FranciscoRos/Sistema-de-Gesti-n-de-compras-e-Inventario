@@ -1,5 +1,10 @@
 <?php
 require_once __DIR__ . '/../datos/ConexionBD.php';
+require_once __DIR__ . '/../librerias/vendor/autoload.php';
+use PHPMailer\PHPMailer\PHPMailer;
+use PHPMailer\PHPMailer\SMTP;
+use PHPMailer\PHPMailer\Exception;
+
 
 class Usuario
 {
@@ -27,6 +32,28 @@ class Usuario
       $query->bindParam(3, $hash);
       $query->bindParam(4, $claveApi);
       $query->execute();
+
+      try {
+        $mail = new PHPMailer(true);
+        $mail->isSMTP();
+        $mail->Host       = 'smtp.gmail.com';
+        $mail->SMTPAuth   = true;
+        $mail->Username   = 'falsofrancisco804@gmail.com';
+        $mail->Password   = 'uplsgkhtgboubegh';
+        $mail->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS;
+        $mail->Port       = 465;
+        $mail->setFrom('falsofrancisco804@gmail.com', 'Administrador');
+        $mail->addAddress($correo, $contrasena);
+        $mail->isHTML(true);
+        $mail->Subject = '¡Se ha creado un nuevo producto!';
+        $mail->Body = 'Hola ' . $nombre . 
+        ',<br><br>Tu cuenta asociada a: '. $correo . ' sido creada exitosamente. Tu clave API es: <strong>' . $claveApi . 
+        '</strong>.<br><br>Saludos.<br>Equipo de Soporte';
+        $mail->send();
+
+      } catch (PDOException $e) {
+        throw new ExcepcionApi(4, "Error al enviar el correo al usuario: " . $e->getMessage(), 400);
+      }
       return [
         "estado" => 1,
         "mensaje" => "Usuario registrado correctamente",

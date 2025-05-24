@@ -17,7 +17,6 @@ class DetalleCompra
      * @return array
      * @throws ExcepcionApi
      */
-
     public static function obtenerTodos($idUsuario) {
         try {
             $_conexion = ConexionBD::obtenerInstancia()->obtenerBD();

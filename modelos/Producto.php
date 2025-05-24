@@ -19,6 +19,9 @@ class Producto
    */
   public static function crear($idUsuario, $datos)
   {
+    $userInfo = self::correoUsuario($idUsuario);
+    $emailUser = $userInfo['datos']['correo'];
+    $userName = $userInfo['datos']['nombreUsuario'];
     // Validación básica
     if (!isset($datos['nombre'], $datos['precioCompra'], $datos['precioVenta'], $datos['stock'])) {
       throw new ExcepcionApi(4, "Datos incompletos para crear producto", 422);
@@ -42,7 +45,7 @@ class Producto
       // Enviar correo de aviso
       try {
         $mail = new PHPMailer(true);
-        // Configuración básica (ajusta según tus credenciales)
+        // Configuración básica
         $mail->isSMTP();
         $mail->Host       = 'smtp.gmail.com';
         $mail->SMTPAuth   = true;
@@ -51,16 +54,19 @@ class Producto
         $mail->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS;
         $mail->Port       = 465;
         $mail->setFrom('falsofrancisco804@gmail.com', 'Administrador');
-        $mail->addAddress('example@gmail.com', 'Usuario Destino'); // Cambia por el destinatario real
+        $mail->addAddress($emailUser, $userName); // Cambia por el destinatario real
         $mail->isHTML(true);
-        $mail->Subject = 'Nuevo producto creado';
-        $mail->Body    = '<b>Se ha creado un nuevo producto:</b><br>' .
+        $mail->Subject = '¡Se ha creado un nuevo producto!';
+        $mail->Body    = 
+          '<b>Hola '. htmlspecialchars($userName) . '</b><br>'.
+          '<b>Usted ha creado un nuevo producto con las siguientes caracteristicas:</b><br>' .
           'Nombre: ' . htmlspecialchars($datos['nombre']) . '<br>' .
           'Precio de compra: ' . htmlspecialchars($datos['precioCompra']) . '<br>' .
           'Precio de venta: ' . htmlspecialchars($datos['precioVenta']) . '<br>' .
           'Stock: ' . htmlspecialchars($datos['stock']) . '<br>' .
-          'ID: ' . $idProducto;
-        $mail->AltBody = 'Se ha creado un nuevo producto: ' .
+          'ID: ' . $idProducto. '<br>'.
+          'Gracias por confiar en nosotros. Tenga un buen dia';
+        $mail->AltBody = 'Usted ha creado un nuevo producto con las siguientes caracteristicas: ' .
           'Nombre: ' . $datos['nombre'] . ', ' .
           'Precio de compra: ' . $datos['precioCompra'] . ', ' .
           'Precio de venta: ' . $datos['precioVenta'] . ', ' .
@@ -263,6 +269,32 @@ public static function filtrarPorProveedor($idProveedor)
     } catch (PDOException $e){
         throw new ExcepcionApi(7, "Rango inválido: " . $e->getMessage(), 500);
    }
+  }
+  public static function correoUsuario($idUsuario) {
+    try {
+        $_conexion = ConexionBD::obtenerInstancia()->obtenerBD();
+
+        $sql = "SELECT u.correo,
+        u.nombre AS nombreUsuario,
+        p.nombre AS nombreProducto,
+        p.precioCompra,
+        p.precioVenta,
+        p.stock
+        FROM usuarios u JOIN productos p ON u.idusuario = p.idUsuario
+        WHERE u.idUsuario = ?";
+        $sentencia = $_conexion->prepare($sql);
+        $sentencia->bindParam(1, $idUsuario, PDO::PARAM_INT);
+        $sentencia->execute();
+        $datos = $sentencia->fetch(PDO::FETCH_ASSOC);
+
+        return [
+          "estado" => 1,
+          "mensaje" => "Datos encontrados correctamente",
+          "datos" => $datos
+        ];
+    } catch (PDOException $e) {
+      throw new ExcepcionApi(7, "Error al encontrar el correo del usuario: " . $e->getMessage(), 500);
+    }
   }
 }
 ?>
