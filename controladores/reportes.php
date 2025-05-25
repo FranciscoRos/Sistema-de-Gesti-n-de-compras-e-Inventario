@@ -21,7 +21,7 @@ class Reportes {
             $pdf->Ln(10);
             $pdf->SetFont('Arial','',12);
 
-            $nombreUsuario = count($detalles) > 0 ? $detalles[0]['nombreUsuario'] : '';
+            $nombreUsuario = utf8_decode(count($detalles) > 0 ? $detalles[0]['nombreUsuario'] : '');
             //Recorrer los detalles de la compra 
             $pdf->Cell(40, 10, 'Nombre del cliente: ' . $nombreUsuario);
             $pdf->Ln(10);
@@ -109,7 +109,7 @@ class Reportes {
         // Mostrar los datos
         foreach ($datos as $fila) {
             foreach ($campos as $campo) {
-                $pdf->Cell($ancho, $alto, $fila[$campo]);
+                $pdf->Cell($ancho, $alto, utf8_decode($fila[$campo]));
             }
             $pdf->Ln(10);
         }

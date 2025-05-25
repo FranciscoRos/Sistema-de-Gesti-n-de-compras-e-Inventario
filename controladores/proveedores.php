@@ -7,6 +7,9 @@ class proveedores
   
   public static function get($peticion)
   {
+    if (isset($peticion[0]) && strtolower($peticion[0]) === 'todos') {
+        return Proveedor::getAllSuppliers();
+    }
     $idUsuario = usuarios::autorizar();
 
     if (!isset($peticion[0]) || trim($peticion[0]) === "") {

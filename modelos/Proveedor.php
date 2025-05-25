@@ -1,5 +1,9 @@
 <?php
 require_once __DIR__ . '/../datos/ConexionBD.php';
+require_once __DIR__ . '/../librerias/vendor/autoload.php';
+use PHPMailer\PHPMailer\PHPMailer;
+use PHPMailer\PHPMailer\SMTP;
+use PHPMailer\PHPMailer\Exception;
 
 class Proveedor
 {
@@ -31,6 +35,32 @@ class Proveedor
       $query->bindParam(3, $datos['contacto']);
       $query->bindParam(4, $datos['telefono']);
       $query->execute();
+
+      try {
+        $correo = $datos['contacto'] ?? null;
+        $nombre = $datos['nombre'] ?? null;
+
+        $mail = new PHPMailer(true);
+        $mail->isSMTP();
+        $mail->Host       = 'smtp.gmail.com';
+        $mail->SMTPAuth   = true;
+        $mail->Username   = 'falsofrancisco804@gmail.com';
+        $mail->Password   = 'uplsgkhtgboubegh';
+        $mail->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS;
+        $mail->Port       = 465;
+        $mail->setFrom('falsofrancisco804@gmail.com', 'Administrador');
+        $mail->addAddress($correo, $nombre);
+        $mail->isHTML(true);
+        $mail->Subject = '¡Se ha creado un nuevo Proveedor!';
+        $mail->Body = 'Hola ' . $nombre . 
+        ',<br><br>Su cuenta: '. $correo . ' ha sido registrada exitosamente como proveedor del sistema. '.
+        'Si no eres tú, por favor ignora este mensaje.<br><br>' .
+        '</strong>.<br><br>Saludos.<br>Equipo de Soporte';
+        $mail->send();
+
+      } catch (PDOException $e) {
+        throw new ExcepcionApi(4, "Error al enviar el correo al usuario: " . $e->getMessage(), 400);
+      }
 
       return [
         "estado" => 1,
@@ -72,6 +102,25 @@ class Proveedor
       throw new ExcepcionApi(7, "Error al consultar proveedores: " . $e->getMessage(), 500);
     }
   }
+
+  public static function getAllSuppliers () {
+        try {
+        $_conexion = ConexionBD::obtenerInstancia()->obtenerBD();
+        $query = "SELECT idProveedor, idUsuario, nombre, contacto, telefono FROM proveedores";
+        $query = $_conexion->prepare($query);
+        $query->execute();
+        $proveedores = $query->fetchAll(PDO::FETCH_ASSOC);
+
+        return [
+            "estado" => 1,
+            "mensaje" => "Proveedores obtenidos exitosamente",
+            "datos" => $proveedores
+
+        ];
+        } catch (PDOException $e) {
+            throw new ExcepcionApi(7, "Error al consultar los proveedores: " . $e->getMessage(), 500);
+        }
+    }
 
   /**
    * Devuelve un proveedor específico del usuario autenticado
