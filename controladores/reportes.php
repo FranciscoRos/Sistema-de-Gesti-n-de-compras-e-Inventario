@@ -3,7 +3,9 @@ require_once __DIR__ . '/../librerias/fpdf.php';
 require_once __DIR__ . '/../modelos/DetalleCompra.php';
 require_once __DIR__ . '/../modelos/Producto.php';
 require_once __DIR__ . '/../modelos/Reporte.php';
+require_once __DIR__ . '/../modelos/Proveedor.php';
 require_once __DIR__.'/../controladores/usuarios.php';
+
 
 
 class Reportes {
@@ -50,7 +52,8 @@ class Reportes {
             exit;
         }
         else if (isset($peticion[0]) && trim($peticion[0]) === "proveedor") {
-            $proveedores = Reporte::getAllSuppliers()['datos'];
+            $idUsuario = usuarios::autorizar();
+            $proveedores = Proveedor::obtenerTodos($idUsuario)['datos'];
 
             //Crear el PDF con uso de FPDF
             $pdf = new FPDF();

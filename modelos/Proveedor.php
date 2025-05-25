@@ -36,31 +36,31 @@ class Proveedor
       $query->bindParam(4, $datos['telefono']);
       $query->execute();
 
-      try {
-        $correo = $datos['contacto'] ?? null;
-        $nombre = $datos['nombre'] ?? null;
+      // try {
+      //   $correo = $datos['contacto'] ?? null;
+      //   $nombre = $datos['nombre'] ?? null;
 
-        $mail = new PHPMailer(true);
-        $mail->isSMTP();
-        $mail->Host       = 'smtp.gmail.com';
-        $mail->SMTPAuth   = true;
-        $mail->Username   = 'falsofrancisco804@gmail.com';
-        $mail->Password   = 'uplsgkhtgboubegh';
-        $mail->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS;
-        $mail->Port       = 465;
-        $mail->setFrom('falsofrancisco804@gmail.com', 'Administrador');
-        $mail->addAddress($correo, $nombre);
-        $mail->isHTML(true);
-        $mail->Subject = '¡Se ha creado un nuevo Proveedor!';
-        $mail->Body = 'Hola ' . $nombre . 
-        ',<br><br>Su cuenta: '. $correo . ' ha sido registrada exitosamente como proveedor del sistema. '.
-        'Si no eres tú, por favor ignora este mensaje.<br><br>' .
-        '</strong>.<br><br>Saludos.<br>Equipo de Soporte';
-        $mail->send();
+      //   $mail = new PHPMailer(true);
+      //   $mail->isSMTP();
+      //   $mail->Host       = 'smtp.gmail.com';
+      //   $mail->SMTPAuth   = true;
+      //   $mail->Username   = 'falsofrancisco804@gmail.com';
+      //   $mail->Password   = 'uplsgkhtgboubegh';
+      //   $mail->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS;
+      //   $mail->Port       = 465;
+      //   $mail->setFrom('falsofrancisco804@gmail.com', 'Administrador');
+      //   $mail->addAddress($correo, $nombre);
+      //   $mail->isHTML(true);
+      //   $mail->Subject = '¡Se ha creado un nuevo Proveedor!';
+      //   $mail->Body = 'Hola ' . $nombre . 
+      //   ',<br><br>Su cuenta: '. $correo . ' ha sido registrada exitosamente como proveedor del sistema. '.
+      //   'Si no eres tú, por favor ignora este mensaje.<br><br>' .
+      //   '</strong>.<br><br>Saludos.<br>Equipo de Soporte';
+      //   $mail->send();
 
-      } catch (PDOException $e) {
-        throw new ExcepcionApi(4, "Error al enviar el correo al usuario: " . $e->getMessage(), 400);
-      }
+      // } catch (PDOException $e) {
+      //   throw new ExcepcionApi(4, "Error al enviar el correo al usuario: " . $e->getMessage(), 400);
+      // }
 
       return [
         "estado" => 1,
