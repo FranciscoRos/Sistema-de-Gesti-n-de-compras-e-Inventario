@@ -70,7 +70,7 @@ class DetalleCompra
             $sentencia->bindParam(1, $idUsuario, PDO::PARAM_INT);
             $sentencia->bindParam(2, $idCompra, PDO::PARAM_INT);
             $sentencia->execute();
-            $detalles = $sentencia->fetch(PDO::FETCH_ASSOC);
+            $detalles = $sentencia->fetchAll(PDO::FETCH_ASSOC);
 
             return [
                 "estado" => 1,
