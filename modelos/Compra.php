@@ -43,44 +43,25 @@ class Compra
       $productosResumen = '';
       // Insertar productos en detalle_compra y acumular total
       foreach ($datos['productos'] as $detalle) {
-        if (!isset($detalle['idProducto'], $detalle['cantidad'], $detalle['precioUnitario'])) {
-          throw new ExcepcionApi(4, "Faltan campos en uno de los productos", 422);
-        }
+    if (!isset($detalle['idProducto'], $detalle['cantidad'], $detalle['precioUnitario'])) {
+        throw new ExcepcionApi(4, "Faltan campos en uno de los productos", 422);
+    }
 
-        $subtotal = $detalle['cantidad'] * $detalle['precioUnitario']; //2 vasos * 20.00 = 40 , 3 manzabas * 10.00 = 300
-        $total += $subtotal; //340.00
+    $subtotal = $detalle['cantidad'] * $detalle['precioUnitario'];
+    $total += $subtotal;
 
-        // Insertar detalle
-        $sqlDetalle = "INSERT INTO " . self::TABLA_DETALLE . " (idCompra, idProducto, cantidad, precioUnitario) VALUES (?, ?, ?, ?)";
-        $insercionDetalle = $_conexion->prepare($sqlDetalle);
-        $insercionDetalle->bindParam(1, $idCompra, PDO::PARAM_INT);
-        $insercionDetalle->bindParam(2, $detalle['idProducto'], PDO::PARAM_INT);
-        $insercionDetalle->bindParam(3, $detalle['cantidad'], PDO::PARAM_INT);
-        $insercionDetalle->bindParam(4, $detalle['precioUnitario']);
-        $insercionDetalle->execute();
+    // Insertar en detalle_compra
+    $sqlDetalle = "INSERT INTO detalle_compra (idCompra, idProducto, cantidad, precioUnitario, subtotal) 
+                   VALUES (?, ?, ?, ?, ?)";
+    $insercionDetalle = $_conexion->prepare($sqlDetalle);
+    $insercionDetalle->bindParam(1, $idCompra, PDO::PARAM_INT);
+    $insercionDetalle->bindParam(2, $detalle['idProducto'], PDO::PARAM_INT);
+    $insercionDetalle->bindParam(3, $detalle['cantidad'], PDO::PARAM_INT);
+    $insercionDetalle->bindParam(4, $detalle['precioUnitario']);
+    $insercionDetalle->bindParam(5, $subtotal);
+    $insercionDetalle->execute();
+}
 
-        // Acumular información de productos para el correo
-        $productosResumen .=
-          'Producto: ' . htmlspecialchars($detalle['idProducto']) . '<br>' .
-          'Cantidad: ' . htmlspecialchars($detalle['cantidad']) . '<br>' .
-          'Precio unitario: ' . htmlspecialchars($detalle['precioUnitario']) . '<br>' .
-          'Subtotal: ' . htmlspecialchars($subtotal) . '<br><br>';
-
-        // Actualizar stock del producto
-        $sqlStock = "UPDATE productos SET stock = stock + ? WHERE idProducto = ? AND idUsuario = ?";
-        $stmtStock = $_conexion->prepare($sqlStock);
-        $stmtStock->bindParam(1, $detalle['cantidad'], PDO::PARAM_INT);
-        $stmtStock->bindParam(2, $detalle['idProducto'], PDO::PARAM_INT);
-        $stmtStock->bindParam(3, $idUsuario, PDO::PARAM_INT);
-        $stmtStock->execute();
-        // Después de actualizar stock, también actualizamos el precioCompra del producto
-        $sqlPrecio = "UPDATE productos SET precioCompra = ? WHERE idProducto = ? AND idUsuario = ?";
-        $stmtPrecio = $_conexion->prepare($sqlPrecio);
-        $stmtPrecio->bindParam(1, $detalle['precioUnitario']);
-        $stmtPrecio->bindParam(2, $detalle['idProducto'], PDO::PARAM_INT);
-        $stmtPrecio->bindParam(3, $idUsuario, PDO::PARAM_INT);
-        $stmtPrecio->execute();
-      }
 
       // Enviar correo de ticket de compra con el resumen de todos los productos
       try {
