@@ -16,13 +16,13 @@ require_once __DIR__ .'/utilidades/ExcepcionApi.php';
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     header("Access-Control-Allow-Origin: *");
     header("Access-Control-Allow-Headers: Authorization, Content-Type");
-    header("Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS");
+    header("Access-Control-Allow-Methods: GET, POST, PUT, DELETE");
     exit(0);
 }
 
 header("Access-Control-Allow-Origin: *");
 header("Access-Control-Allow-Headers: Authorization, Content-Type");
-header("Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS");
+header("Access-Control-Allow-Methods: GET, POST, PUT, DELETE");
 
 // Definir códigos internos
 // Códigos internos de error según convención oficial
